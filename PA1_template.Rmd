@@ -8,14 +8,47 @@ output:
 
 ## Loading and preprocessing the data
 
+```{r, message=FALSE, warning=FALSE}
+###import data
+activity <- read.csv(file = "activity.csv", stringsAsFactors = F)
+
+### format date
+library(lubridate)
+activity$date <- ymd(activity$date)
+```
+
 
 
 ## What is mean total number of steps taken per day?
 
+Histogram of steps looks like these:
 
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(activity) + geom_histogram(aes(x=steps), binwidth = 5)
+
+```
+Mean of steps taken each day is `r mean(activity$steps, na.rm=T)` and median is `r median(activity$steps, na.rm=T)`
 
 ## What is the average daily activity pattern?
 
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+AvgSteps <-  activity%>%group_by(interval)%>%summarise(Avg.Steps=mean(steps,na.rm = T))%>%arrange(desc(Avg.Steps))
+
+```
+Daily 5-minute interval with maximum steps:
+```{r}
+AvgSteps[1,]
+```
+
+Distribution of average number of steps per 5 minute interval.
+
+```{r}
+library(dplyr)
+activity%>%group_by(interval)%>%summarise(Avg.Steps=mean(steps,na.rm = T))%>%
+        ggplot() + geom_line(aes(x=interval,y=Avg.Steps))
+```
 
 
 ## Imputing missing values
