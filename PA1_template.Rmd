@@ -25,15 +25,20 @@ Histogram of steps looks like these:
 
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
-ggplot(activity) + geom_histogram(aes(x=steps), binwidth = 5)
+library(dplyr)
+avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
+
+ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
 
 ```
-Mean of steps taken each day is `r mean(activity$steps, na.rm=T)` and median is `r median(activity$steps, na.rm=T)`
+
+Mean of steps taken each day is `r mean(avgDaily$steps, na.rm=T)` and median is `r median(avgDaily$steps, na.rm=T)`
 
 ## What is the average daily activity pattern?
 
 
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
 AvgSteps <-  activity%>%group_by(interval)%>%summarise(Avg.Steps=mean(steps,na.rm = T))%>%arrange(desc(Avg.Steps))
 
 ```
@@ -46,13 +51,36 @@ Distribution of average number of steps per 5 minute interval.
 
 ```{r}
 library(dplyr)
-activity%>%group_by(interval)%>%summarise(Avg.Steps=mean(steps,na.rm = T))%>%
-        ggplot() + geom_line(aes(x=interval,y=Avg.Steps))
+avgInterval <- activity%>%group_by(interval)%>%summarise(steps=mean(steps,na.rm = T))
+
+        ggplot(avgInterval) + geom_line(aes(x=interval,y=steps))
 ```
 
 
 ## Imputing missing values
 
+There are `r sum(is.na(activity$steps)==TRUE)` rows in variable steps with missing values, that we will replace with the mean of steps per each interval. We will join original activity table with table with average steps per interval and then use averages for rows where there is missing data.
+```{r}
+
+activity <- left_join(activity,AvgSteps,by="interval")
+activity$steps <- ifelse(is.na(activity$steps),activity$Avg.Steps, activity$steps)
+
+```
+And finally drop column with average steps in order to keep original format.
+
+```{r}
+activity <- activity%>%select(-Avg.Steps)
+```
+After imputting missing values histogram looks like this.
+```{r}
+library(ggplot2)
+avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
+
+ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
+```
+
+And Mean of steps taken each day is `r mean(avgDaily$steps, na.rm=T)` and median is `r median(avgDaily$steps, na.rm=T)`.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
