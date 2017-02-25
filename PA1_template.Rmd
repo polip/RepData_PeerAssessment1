@@ -87,3 +87,11 @@ Imputting of missing values, slightly increased median, due to higher number of 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(dplyr)
+activity$weekday <- ifelse(wday(activity$date) %in% c(1,7),"Weekend","Weekday")
+avgInterval <- activity%>%group_by(interval,weekday)%>%summarise(steps=mean(steps,na.rm = T))
+
+        ggplot(avgInterval) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
+```
