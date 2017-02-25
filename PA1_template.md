@@ -7,10 +7,19 @@
 ```r
 ###import data
 activity <- read.csv(file = "activity.csv", stringsAsFactors = F)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
 
 ### format date
-library(lubridate)
 activity$date <- ymd(activity$date)
+
+###grouping
+avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
+avgInterval <- activity%>%group_by(interval)%>%summarise(steps=mean(steps,na.rm = T))
+
+activity$weekday <- ifelse(wday(activity$date) %in% c(1,7),"Weekend","Weekday")
+avgIntervalDay <- activity%>%group_by(interval,weekday)%>%summarise(steps=mean(steps,na.rm = T))
 ```
 
 
@@ -21,14 +30,10 @@ Histogram of steps looks like these:
 
 
 ```r
-library(ggplot2)
-library(dplyr)
-avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
-
 ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+![](PA1_template_files/figure-html/Hist Daily Avg-1.png)<!-- -->
 
 Mean of steps taken each day is 37.3825996 and median is 37.3784722
 
@@ -57,13 +62,10 @@ Distribution of average number of steps per 5 minute interval.
 
 
 ```r
-library(dplyr)
-avgInterval <- activity%>%group_by(interval)%>%summarise(steps=mean(steps,na.rm = T))
-
         ggplot(avgInterval) + geom_line(aes(x=interval,y=steps))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](PA1_template_files/figure-html/hist Avg Int-1.png)<!-- -->
 
 
 ## Imputing missing values
@@ -79,20 +81,18 @@ And finally drop column with average steps in order to keep original format.
 
 ```r
 activity <- activity%>%select(-Avg.Steps)
+avgDailyAfter <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
 ```
 After imputting missing values histogram looks like this.
 
 ```r
-library(ggplot2)
-avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
-
-ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
+ggplot(avgDailyAfter) + geom_histogram(aes(x=steps), binwidth = 5)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 
-And Mean of steps taken each day is 37.3825996 and median is 37.3825996.
+Mean of steps taken each day is 37.3825996 and median is 37.3784722.
 
 Imputting of missing values, slightly increased median, due to higher number of cases in the most frequent bin, while mean stayed apporoximately the same.
 
@@ -102,11 +102,7 @@ Imputting of missing values, slightly increased median, due to higher number of 
 
 
 ```r
-library(dplyr)
-activity$weekday <- ifelse(wday(activity$date) %in% c(1,7),"Weekend","Weekday")
-avgInterval <- activity%>%group_by(interval,weekday)%>%summarise(steps=mean(steps,na.rm = T))
-
-        ggplot(avgInterval) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
+        ggplot(avgIntervalDay) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
