@@ -58,7 +58,7 @@ AvgSteps[1,]
 
 Distribution of average number of steps per 5 minute interval.
 
-```{r hist Avg Int, echo=TRUE, message=FALSE, warning=FALSE}
+```{r Interval Avg, echo=TRUE, message=FALSE, warning=FALSE}
 
         ggplot(avgInterval) + geom_line(aes(x=interval,y=steps))
 ```
@@ -80,7 +80,7 @@ activity <- activity%>%select(-Avg.Steps)
 avgDailyAfter <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
 ```
 After imputting missing values histogram looks like this.
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, Hist Daily Avg After, echo=TRUE, message=FALSE, warning=FALSE}
 
 ggplot(avgDailyAfter) + geom_histogram(aes(x=steps), binwidth = 5)
 ```
@@ -94,7 +94,7 @@ Imputting of missing values, slightly increased median, due to higher number of 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, Weekdays Avg, echo=TRUE, message=FALSE, warning=FALSE}
 
 
         ggplot(avgIntervalDay) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
