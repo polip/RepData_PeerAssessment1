@@ -7,7 +7,7 @@ output:
 
 ```{r opts, echo = FALSE}
 knitr::opts_chunk$set(
-  fig.path = "PA1_template_files/"
+  echo = TRUE
 )
 ```
 ## Loading and preprocessing the data
@@ -15,10 +15,19 @@ knitr::opts_chunk$set(
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 ###import data
 activity <- read.csv(file = "activity.csv", stringsAsFactors = F)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
 
 ### format date
-library(lubridate)
 activity$date <- ymd(activity$date)
+
+###grouping
+avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
+avgInterval <- activity%>%group_by(interval)%>%summarise(steps=mean(steps,na.rm = T))
+
+activity$weekday <- ifelse(wday(activity$date) %in% c(1,7),"Weekend","Weekday")
+avgIntervalDay <- activity%>%group_by(interval,weekday)%>%summarise(steps=mean(steps,na.rm = T))
 ```
 
 
@@ -27,11 +36,7 @@ activity$date <- ymd(activity$date)
 
 Histogram of steps looks like these:
 
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(dplyr)
-avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
-
+```{r Hist Daily Avg, echo=TRUE, message=FALSE, warning=FALSE}
 ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
 
 ```
@@ -53,9 +58,7 @@ AvgSteps[1,]
 
 Distribution of average number of steps per 5 minute interval.
 
-```{r, echo=TRUE}
-library(dplyr)
-avgInterval <- activity%>%group_by(interval)%>%summarise(steps=mean(steps,na.rm = T))
+```{r hist Avg Int, echo=TRUE, message=FALSE, warning=FALSE}
 
         ggplot(avgInterval) + geom_line(aes(x=interval,y=steps))
 ```
@@ -74,13 +77,12 @@ And finally drop column with average steps in order to keep original format.
 
 ```{r}
 activity <- activity%>%select(-Avg.Steps)
+avgDailyAfter <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
 ```
 After imputting missing values histogram looks like this.
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
-library(ggplot2)
-avgDaily <- activity%>%group_by(date)%>%summarise(steps=mean(steps,na.rm = T))
 
-ggplot(avgDaily) + geom_histogram(aes(x=steps), binwidth = 5)
+ggplot(avgDailyAfter) + geom_histogram(aes(x=steps), binwidth = 5)
 ```
 
 
@@ -93,9 +95,7 @@ Imputting of missing values, slightly increased median, due to higher number of 
 
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
-library(dplyr)
-activity$weekday <- ifelse(wday(activity$date) %in% c(1,7),"Weekend","Weekday")
-avgInterval <- activity%>%group_by(interval,weekday)%>%summarise(steps=mean(steps,na.rm = T))
 
-        ggplot(avgInterval) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
+
+        ggplot(avgIntervalDay) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
 ```
