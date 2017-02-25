@@ -65,7 +65,7 @@ Distribution of average number of steps per 5 minute interval.
         ggplot(avgInterval) + geom_line(aes(x=interval,y=steps))
 ```
 
-![](PA1_template_files/figure-html/hist Avg Int-1.png)<!-- -->
+![](PA1_template_files/figure-html/Interval Avg-1.png)<!-- -->
 
 
 ## Imputing missing values
@@ -89,7 +89,7 @@ After imputting missing values histogram looks like this.
 ggplot(avgDailyAfter) + geom_histogram(aes(x=steps), binwidth = 5)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](PA1_template_files/figure-html/Hist Daily Avg After-1.png)<!-- -->
 
 
 Mean of steps taken each day is 37.3825996 and median is 37.3784722.
@@ -105,4 +105,4 @@ Imputting of missing values, slightly increased median, due to higher number of 
         ggplot(avgIntervalDay) + geom_line(aes(x=interval,y=steps)) + facet_wrap(~weekday)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](PA1_template_files/figure-html/Weekdays Avg-1.png)<!-- -->
